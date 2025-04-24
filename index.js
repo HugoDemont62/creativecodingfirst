@@ -1,9 +1,11 @@
-import { WebGLRenderer, Scene, Vector2} from 'three';
+import { WebGLRenderer, Scene, Vector2, Color } from 'three';
 import { Pane } from 'tweakpane';
 import gsap from 'gsap';
 import Camera from './components/Camera.js';
-import Cube from './components/Cube.js';
+import Slider from './components/Slider.js';
 import Lighting from './components/Lighting.js';
+import { initScrollBehavior } from './utils/scrollBehavior.js';
+
 let canvas, webgl, renderer;
 
 webgl = {};
@@ -17,46 +19,44 @@ function init() {
     const pr = window.devicePixelRatio;
     renderer = new WebGLRenderer({
         canvas,
+        antialias: true,
+        alpha: true
     });
     renderer.setPixelRatio(pr);
+    renderer.setClearColor(0x000000, 0); // Fond transparent
 
-    webgl.gui = new Pane();
+    webgl.gui = new Pane({
+        container: document.querySelector('#app')
+    });
+    webgl.gui.hidden = true; // Cacher l'interface de debug par défaut
+
     webgl.scene = new Scene();
     webgl.camera = new Camera();
-    webgl.cube = new Cube();
     webgl.slider = new Slider();
     webgl.viewport = new Vector2();
     webgl.light = new Lighting(webgl.scene, renderer);
 
-    
-    initMenuEvents();
-    
+    // Rendre l'objet webgl disponible globalement pour le système de scroll
+    window.webgl = webgl;
+
+    // Initialiser le comportement de scroll
+    const scrollSystem = initScrollBehavior();
+    webgl.scrollSystem = scrollSystem;
+
     resize();
 }
 
-function initMenuEvents() {
-    const buttons = document.querySelectorAll('#menu button');
-    buttons.forEach(button => {
-        button.addEventListener('click', () => {
-            const slideIndex = parseInt(button.dataset.slide, 10);
-            webgl.slider.goToSlide(slideIndex);
-        });
-    });
-}
-
-function preload() {
-
-}
-
 function update(time, deltaTime, frame) {
+    // Mise à jour des composants
     webgl.camera.update();
-    webgl.cube.update();
+    if(webgl.slider) webgl.slider.update();
+
+    // Rendu
     render();
 }
 
 function render() {
     renderer.render(webgl.scene, webgl.camera.activeCamera);
-
 }
 
 function resize() {
@@ -66,7 +66,6 @@ function resize() {
     webgl.viewportRatio = width / height;
     webgl.camera.resize();
     renderer.setSize(width, height);
-
 }
 
 window.addEventListener('resize', resize);
@@ -76,4 +75,3 @@ gsap.ticker.add(update);
 export function getWebgl() {
     return webgl;
 }
-

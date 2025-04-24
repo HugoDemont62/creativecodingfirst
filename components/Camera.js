@@ -10,18 +10,18 @@ export default class Camera {
         this.main = this.createCamera();
         this.debug = this.createDebug();
 
-        this.activeCamera = this.debug;
+        this.activeCamera = this.main; // Définir la caméra principale comme active par défaut
         this.createPaneFolder();
-
     }
 
-
     createCamera() {
-        const camera = new PerspectiveCamera(55, this.webgl.viewportRatio, 0.1, 100);
+        const camera = new PerspectiveCamera(45, this.webgl.viewportRatio, 0.1, 1000);
         const helper = new CameraHelper(camera);
+        helper.visible = false; // Cacher l'helper par défaut
 
-        camera.position.set(0, 1, 2.5); // Ajustez les coordonnées selon vos besoins
-        camera.lookAt(0, 0, 0); // Oriente la caméra vers le centre de la scène
+        // Position optimisée pour voir la voiture à gauche
+        camera.position.set(-6, 3, 15);
+        camera.lookAt(-8, 0, -2); // Regarder vers la position du groupe de la voiture
 
         this.scene.add(camera);
         this.scene.add(helper);
@@ -29,11 +29,21 @@ export default class Camera {
     }
 
     createDebug() {
-        const camera = new PerspectiveCamera(55, this.webgl.viewportRatio, 0.1, 100);
-        camera.position.set(10, 10, 10);
-        camera.lookAt(0, 0, 0);
+        const camera = new PerspectiveCamera(45, this.webgl.viewportRatio, 0.1, 1000);
+
+        // Position également ajustée pour la caméra de debug
+        camera.position.set(0, 15, 25);
+        camera.lookAt(-8, 0, -2); // Regarder vers la position du groupe de la voiture
 
         this.orbitControls = new OrbitControls(camera, this.webgl.canvas);
+
+        // Ajustement des contrôles pour une meilleure navigation
+        this.orbitControls.enableDamping = true;
+        this.orbitControls.dampingFactor = 0.05;
+        this.orbitControls.minDistance = 5;
+        this.orbitControls.maxDistance = 50;
+        // Définir une cible pour les contrôles orbitaux
+        this.orbitControls.target.set(-8, 0, -2);
 
         this.scene.add(camera);
 
@@ -61,9 +71,8 @@ export default class Camera {
         this.activeCamera = camera;
     }
 
-
     init() {
-
+        // Initialisation supplémentaire si nécessaire
     }
 
     update() {
@@ -71,10 +80,15 @@ export default class Camera {
     }
 
     resize() {
-        this.main.aspect = window.innerWidth / window.innerHeight; // Met à jour le ratio d'aspect
-        this.main.updateProjectionMatrix(); // Met à jour la matrice de projection
+        this.main.aspect = window.innerWidth / window.innerHeight;
+        this.main.updateProjectionMatrix();
 
-        this.activeCamera.aspect = window.innerWidth / window.innerHeight; // Met à jour la caméra active
-        this.activeCamera.updateProjectionMatrix();
+        this.debug.aspect = window.innerWidth / window.innerHeight;
+        this.debug.updateProjectionMatrix();
+
+        if (this.activeCamera !== this.main && this.activeCamera !== this.debug) {
+            this.activeCamera.aspect = window.innerWidth / window.innerHeight;
+            this.activeCamera.updateProjectionMatrix();
+        }
     }
 }

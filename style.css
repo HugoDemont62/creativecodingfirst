@@ -1,11 +1,17 @@
 :root {
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    --color-black: #121212;
+    --color-white: #ffffff;
+    --color-red: #e60012;
+    --color-blue: #0073cf;
+    --color-gray: #777777;
+
+    font-family: 'Racing Sans One', Helvetica, Arial, sans-serif;
     line-height: 1.5;
     font-weight: 400;
 
-    color-scheme: light dark;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
+    color-scheme: dark;
+    color: var(--color-white);
+    background-color: var(--color-black);
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -13,51 +19,527 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
+* {
+    color: var(--color-black);
+}
+
 body {
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100%;
-    background-color: white;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    background: linear-gradient(135deg, #e6e6e6 0%, #ffffff 100%);
 }
 
-.debug-gui {
+#app {
     position: fixed;
-    top: 10px;
-    right: 10px;
-    z-index: 3;
-    display: block;
-}
-
-.webgl {
-    position: fixed;
-    inset: 0;
     top: 0;
     left: 0;
-    z-index: 1;
+    width: 50%;
+    height: 100vh;
     overflow: hidden;
-    user-select: none;
+    z-index: 1;
 }
 
+#content-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100vh;
+    padding: 4rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 2;
+    overflow-y: auto;
+}
+
+.slide-content {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.slide-content h1 {
+    font-family: 'Racing Sans One', sans-serif;
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    color: var(--color-black);
+    text-transform: uppercase;
+    line-height: 1.1;
+}
+
+.slide-content h2 {
+    font-size: 1.5rem;
+    font-weight: 300;
+    margin-bottom: 2rem;
+    color: var(--color-black);
+}
+
+.slide-content p {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.pillars {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    gap: 1.5rem;
+}
+
+.pillar {
+    flex: 1;
+    text-align: center;
+}
+
+.pillar .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    background-color: var(--color-red);
+    color: var(--color-black);
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.pillar h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+}
+
+.pillar p {
+    font-size: 0.9rem;
+    color: var(--color-gray);
+    text-align: left;
+}
+
+/* Styles pour le slide 3 (Calendrier) */
+.events-list {
+    margin-top: 2rem;
+}
+
+.event {
+    display: flex;
+    margin-bottom: 1.5rem;
+    align-items: center;
+}
+
+.event-date {
+    background-color: var(--color-red);
+    color: var(--color-black);
+    padding: 0.5rem 1rem;
+    border-radius: 3px;
+    font-weight: bold;
+    min-width: 6rem;
+    text-align: center;
+}
+
+.event-info {
+    margin-left: 1.5rem;
+}
+
+.event-info h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.event-info p {
+    margin: 0.3rem 0 0;
+    color: var(--color-black);
+}
+
+.pilots-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.pilot {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 5px;
+    transition: transform 0.3s ease;
+}
+
+.pilot:hover {
+    transform: translateY(-5px);
+}
+
+.pilot h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: var(--color-white);
+}
+
+.pilot p {
+    margin: 0.3rem 0;
+    color: var(--color-black);
+}
+
+.media-tabs {
+    display: flex;
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.tab {
+    padding: 0.8rem 1.5rem;
+    background-color: transparent;
+    color: var(--color-black);
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+}
+
+.tab.active {
+    color: var(--color-black);
+    border-bottom: 2px solid var(--color-red);
+}
+
+.contact-form {
+    margin-top: 2rem;
+}
+
+.contact-form h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.contact-form form {
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-form input,
+.contact-form textarea {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    color: var(--color-black);
+    font-family: 'Montserrat', sans-serif;
+    border-radius: 3px;
+}
+
+.contact-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.social-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.social-link {
+    color: var(--color-black);
+    text-decoration: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.social-link:hover {
+    color: var(--color-red);
+}
+
+/* Styles de navigation */
 #menu {
     position: fixed;
-    bottom: 20px;
+    bottom: 2rem;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 2;
+    z-index: 10;
     display: flex;
-    gap: 10px;
-}
-
-#menu button {
-    padding: 10px 15px;
-    cursor: pointer;
-    background-color: #333;
-    color: white;
-    border: none;
+    gap: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 0.5rem;
     border-radius: 5px;
 }
 
+#menu button {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--color-black);
+    border: none;
+    border-radius: 3px;
+    transition: background-color 0.3s ease;
+}
+
 #menu button:hover {
-    background-color: #555;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+#menu button.active {
+    background-color: var(--color-red);
+}
+
+#prev-slide, #next-slide {
+    font-weight: bold;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    #app {
+        width: 100%;
+        height: 50vh;
+    }
+
+    #content-container {
+        width: 100%;
+        height: 50vh;
+        top: 50vh;
+        right: 0;
+        padding: 2rem;
+    }
+
+    .pilots-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .pillars {
+        flex-direction: column;
+    }
+
+    .pilots-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .slide-content h1 {
+        font-size: 2rem;
+    }
+}
+
+body {
+    overflow: hidden;
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+}
+
+.scroll-indicator {
+    position: fixed;
+    bottom: 5rem;
+    right: 2rem;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.scroll-indicator:hover {
+    opacity: 1;
+}
+
+.scroll-indicator .mouse {
+    width: 2rem;
+    height: 3.2rem;
+    border: 2px solid var(--color-black);
+    border-radius: 1rem;
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.scroll-indicator .mouse::before {
+    content: '';
+    position: absolute;
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: var(--color-black);
+    border-radius: 50%;
+    left: 50%;
+    top: 0.5rem;
+    transform: translateX(-50%);
+    animation: scroll-down 1.5s infinite;
+}
+
+.scroll-indicator .text {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    color: var(--color-black);
+    font-family: 'Montserrat', sans-serif;
+}
+
+@keyframes scroll-down {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 0);
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, 1rem);
+    }
+}
+
+/* Animation d'entrée pour les slides */
+.slide-content {
+    transform: translateY(20px);
+    transition: transform 0.8s ease, opacity 0.8s ease;
+}
+
+.slide-content.active {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Animation de progression */
+.progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background-color: var(--color-red);
+    z-index: 100;
+    transition: width 0.3s ease;
+}
+
+/* Améliorations pour les boutons de menu */
+#menu {
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+#menu:hover {
+    opacity: 1;
+}
+
+#menu button {
+    position: relative;
+    overflow: hidden;
+}
+
+#menu button::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--color-red);
+    transition: width 0.3s ease;
+}
+
+#menu button:hover::after {
+    width: 100%;
+}
+
+#menu button.active::after {
+    width: 100%;
+}
+
+/* Animation de transition pour le contenu */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-content h1,
+.slide-content h2,
+.slide-content p,
+.slide-content .pillars,
+.slide-content .events-list,
+.slide-content .pilots-grid,
+.slide-content .media-tabs,
+.slide-content .contact-form {
+    animation: fadeInUp 0.8s ease forwards;
+    animation-play-state: paused;
+    opacity: 0;
+}
+
+.slide-content.active h1 {
+    animation-delay: 0.1s;
+    animation-play-state: running;
+}
+
+.slide-content.active h2 {
+    animation-delay: 0.2s;
+    animation-play-state: running;
+}
+
+.slide-content.active p {
+    animation-delay: 0.3s;
+    animation-play-state: running;
+}
+
+.slide-content.active .media-tabs {
+    animation-delay: 0.4s;
+    animation-play-state: running;
+}
+
+.slide-content.active .pillars,
+.slide-content.active .events-list,
+.slide-content.active .pilots-grid,
+.slide-content.active .contact-form {
+    animation-delay: 0.5s;
+    animation-play-state: running;
+}
+
+/* Styles pour les animations de la voiture selon le slide actif */
+.car-animation-indicator {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    color: var(--color-gray);
+    font-size: 0.8rem;
+    font-family: 'Montserrat', sans-serif;
+    z-index: 100;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.car-animation-indicator:hover {
+    opacity: 1;
+}
+
+/* Ajout pour les navigateurs mobiles */
+@media (max-width: 768px) {
+    .scroll-indicator {
+        bottom: 1rem;
+        right: 1rem;
+    }
+
+    .car-animation-indicator {
+        display: none;
+    }
+}
+
+
+/* Ajout logo */
+#logo img {
+    z-index: 100;
+    width: 200px;
+    height: 100px;
+    position: fixed;
+    object-fit: contain;
 }

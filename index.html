@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8" />
     <link
@@ -15,20 +15,225 @@
             name="viewport"
             content="width=device-width, initial-scale=1.0"
     />
-    <title>ECV - Creative Coding</title>
+    <title>Championnat de France de Drift</title>
 </head>
 
 <body>
+<!-- Logo -->
+<div id="logo">
+    <img src="models/logo-cfd-noir.png" alt="Logo du Championnat de France de Drift" />
+</div>
+
+<!-- Conteneur Three.js -->
 <div id="app"></div>
+
+<!-- Structure du contenu textuel -->
+<div id="content-container">
+    <!-- Slide 1: Accueil -->
+    <div id="slide-content-0" class="slide-content">
+        <h1>CHAMPIONNAT DE FRANCE DE DRIFT</h1>
+        <h2>LA RÉFÉRENCE DU DRIFT COMPÉTITION EN FRANCE</h2>
+        <p>Découvrez l'univers passionnant du drift français avec des pilotes d'exception, des véhicules spectaculaires et des performances à couper le souffle.</p>
+    </div>
+
+    <!-- Slide 2: Le Championnat -->
+    <div id="slide-content-1" class="slide-content">
+        <h1>LE CFD, C'EST QUOI ?</h1>
+        <p>Le Championnat de France de Drift (CFD) est la compétition officielle de référence en France, reconnue par la FFSA depuis 2010. C'est l'événement incontournable qui réunit l'élite des pilotes français et internationaux dans une discipline qui allie technique de pilotage extrême et spectacle grandiose.</p>
+        <p>Chaque année, plus de 60 pilotes s'affrontent lors de 4 manches réparties sur les plus beaux circuits français. Les compétitions se déroulent sous forme de qualifications individuelles puis de battles en face-à-face, jugées selon des critères stricts de vitesse, d'angle, de trajectoire et de style.</p>
+        <p>Le CFD est devenu au fil des années une véritable vitrine du sport automobile français, attirant des milliers de spectateurs et transformant le drift en un phénomène qui dépasse le cadre de la simple compétition pour devenir un véritable spectacle.</p>
+
+        <div class="pillars">
+            <div class="pillar">
+                <div class="icon">T</div>
+                <h3>TECHNIQUE</h3>
+                <p>L'art de maîtriser l'adhérence à haute vitesse. Le drift exige une parfaite coordination entre accélération, freinage et contre-braquage pour maintenir la voiture en glisse contrôlée tout en suivant une trajectoire imposée avec précision.</p>
+            </div>
+            <div class="pillar">
+                <div class="icon">S</div>
+                <h3>STYLE</h3>
+                <p>L'expression de la personnalité du pilote. Angles extrêmes, proximité des obstacles, transitions fluides entre les virages et gestion de la fumée des pneus - chaque pilote apporte sa signature visuelle unique qui fait la beauté du drift.</p>
+            </div>
+            <div class="pillar">
+                <div class="icon">S</div>
+                <h3>SPECTACLE</h3>
+                <p>L'émotion partagée avec le public. Moteurs rugissants, pneus crissants, voitures en drift côte à côte à quelques centimètres l'une de l'autre - le drift offre une intensité visuelle et sonore incomparable dans le monde du sport automobile.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Calendrier -->
+    <div id="slide-content-2" class="slide-content">
+        <h1>CALENDRIER 2025</h1>
+        <div class="events-list">
+            <div class="event">
+                <div class="event-date">15-16 Mai</div>
+                <div class="event-info">
+                    <h3>Circuit de Lédenon</h3>
+                    <p>Manche d'ouverture</p>
+                </div>
+            </div>
+            <div class="event">
+                <div class="event-date">12-13 Juin</div>
+                <div class="event-info">
+                    <h3>Circuit de Croix-en-Ternois</h3>
+                    <p>Seconde manche</p>
+                </div>
+            </div>
+            <div class="event">
+                <div class="event-date">24-25 Juillet</div>
+                <div class="event-info">
+                    <h3>Circuit de Mérignac</h3>
+                    <p>Troisième manche</p>
+                </div>
+            </div>
+            <div class="event">
+                <div class="event-date">18-19 Sept</div>
+                <div class="event-info">
+                    <h3>Circuit Paul Ricard</h3>
+                    <p>Finale du championnat</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Pilotes -->
+    <div id="slide-content-3" class="slide-content">
+        <h1>NOS PILOTES</h1>
+        <p>Le Championnat de France de Drift rassemble les meilleurs pilotes nationaux et internationaux, offrant un spectacle de haut niveau à chaque manche.</p>
+        <div class="pilots-grid">
+            <div class="pilot">
+                <h3>Benjamin Boulbes</h3>
+                <p>Champion en titre</p>
+                <p>BMW M3</p>
+            </div>
+            <div class="pilot">
+                <h3>Nicolas Delorme</h3>
+                <p>Vice-champion</p>
+                <p>Nissan 200SX</p>
+            </div>
+            <div class="pilot">
+                <h3>Laurent Cousin</h3>
+                <p>3ème place</p>
+                <p>Toyota GT86</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Media -->
+    <div id="slide-content-4" class="slide-content">
+        <h1>DANS L'ACTION</h1>
+        <p>Revivez les moments forts du Championnat de France de Drift à travers notre galerie de photos et vidéos. Chaque événement offre son lot d'émotions et de performances spectaculaires.</p>
+        <div class="media-tabs">
+            <button class="tab active">Photos</button>
+            <button class="tab">Vidéos</button>
+            <button class="tab">Highlights</button>
+        </div>
+    </div>
+
+    <!-- Slide 6: Contact -->
+    <div id="slide-content-5" class="slide-content">
+        <h1>REJOIGNEZ L'AVENTURE</h1>
+        <p>Participez à l'expérience unique du Championnat de France de Drift, que ce soit en tant que spectateur, partenaire ou compétiteur.</p>
+        <div class="contact-form">
+            <h2>CONTACTEZ-NOUS</h2>
+            <form>
+                <input type="text" placeholder="Nom">
+                <input type="email" placeholder="Email">
+                <textarea placeholder="Message"></textarea>
+                <button class="action-button">ENVOYER</button>
+            </form>
+        </div>
+        <div class="social-links">
+            <a href="#" class="social-link">Facebook</a>
+            <a href="#" class="social-link">Instagram</a>
+            <a href="#" class="social-link">YouTube</a>
+            <a href="#" class="social-link">Twitter</a>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation par boutons -->
 <div id="menu">
     <button id="prev-slide" aria-label="Previous Slide">←</button>
-    <button data-slide="0">1</button>
+    <button data-slide="0" class="active">1</button>
     <button data-slide="1">2</button>
     <button data-slide="2">3</button>
     <button data-slide="3">4</button>
     <button data-slide="4">5</button>
+    <button data-slide="5">6</button>
     <button id="next-slide" aria-label="Next Slide">→</button>
 </div>
+
+<!-- Indicateur de scroll -->
+<div class="scroll-indicator">
+    <div class="mouse"></div>
+    <div class="text">Scroll</div>
+</div>
+
+<!-- Barre de progression -->
+<div class="progress-bar" style="width: 0%;"></div>
+
+<!-- Indicateur d'animation de la voiture -->
+<div class="car-animation-indicator">
+    <span id="animation-name">Animation: Drift statique</span>
+</div>
+
+<!-- Script pour mettre à jour les indicateurs -->
+<script>
+// Mettre à jour la barre de progression et l'indicateur d'animation
+function updateIndicators(slideIndex) {
+  // Mettre à jour la barre de progression
+  const progressBar = document.querySelector('.progress-bar');
+  const totalSlides = 6; // Nombre total de slides
+  const progressWidth = ((slideIndex + 1) / totalSlides) * 100;
+  progressBar.style.width = `${progressWidth}%`;
+
+  // Mettre à jour l'indicateur d'animation
+  const animationIndicator = document.getElementById('animation-name');
+  const animations = [
+    'Animation: Drift statique',
+    'Animation: Battement moteur',
+    'Animation: Vibration démarrage',
+    'Animation: Zoom subtil',
+    'Animation: Rotation drift',
+    'Animation: Pulsation'
+  ];
+
+  animationIndicator.textContent = animations[slideIndex];
+}
+
+// Observer les changements de classe active sur les boutons pour mettre à jour les indicateurs
+const observer = new MutationObserver(mutations => {
+  mutations.forEach(mutation => {
+    if (mutation.attributeName === 'class' && mutation.target.classList.contains('active')) {
+      const slideIndex = parseInt(mutation.target.dataset.slide, 10);
+      updateIndicators(slideIndex);
+
+      // Aussi mettre à jour la classe active sur les slides
+      document.querySelectorAll('.slide-content').forEach((slide, index) => {
+        if (index === slideIndex) {
+          slide.classList.add('active');
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+    }
+  });
+});
+
+// Observer tous les boutons de slide
+document.querySelectorAll('#menu button[data-slide]').forEach(button => {
+  observer.observe(button, { attributes: true });
+});
+
+// Initialiser les indicateurs avec le premier slide
+document.addEventListener('DOMContentLoaded', () => {
+  updateIndicators(0);
+  document.getElementById('slide-content-0').classList.add('active');
+});
+</script>
+
 <script
         type="module"
         src="/index.js"
