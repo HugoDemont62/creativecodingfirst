@@ -92,7 +92,7 @@ export default class Slider {
     const loader = new GLTFLoader();
 
     loader.load(
-      'models/car.glb',
+      'assets/car.glb',
       (gltf) => {
         this.carModel = gltf.scene;
 
