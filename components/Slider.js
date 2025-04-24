@@ -12,39 +12,42 @@ export default class Slider {
     this.carGroup = new Group();
 
     this.carModel = null;
+    this.frontWheels = []; // Pour stocker les roues avant
+    this.backWheels = []; // Pour stocker les roues arrière
+    this.wheelAnimationId = null; // Pour l'animation des roues
 
     this.slideConfigs = [
       // positionné sur la gauche
       {
         rot: [0, Math.PI * 0.25, 0],
         scale: 7.2,
-        position: [-10, 0, 0]
+        position: [-5, 0, 0]
       },
       {
         rot: [0, Math.PI * 0.5, 0],
         scale: 6.0,
-        position: [0, 0, 0]
+        position: [-5, 0, 0]
       },
       {
         rot: [0, Math.PI * 0.75, 0],
         scale: 6.0,
-        position: [0, 0, 0]
+        position: [-5, 0, 0]
       },
       {
         // Vue du dessus
         rot: [0, Math.PI * 0.5, 0],
-        scale: 8.0,
-        position: [0, 1, 0]
+        scale: 10.0,
+        position: [-5, 1, 0]
       },
       {
         rot: [0, Math.PI * 0.1, 0],
         scale: 7.2,
-        position: [0, 0.5, 0]
+        position: [-5, 0.5, 0]
       },
       {
         rot: [0, 0, 0],
         scale: 8.8,
-        position: [0, 0, 0]
+        position: [-10, 0, 0]
       }
     ];
 
@@ -103,6 +106,8 @@ export default class Slider {
           this.slideConfigs[0].rot[2]
         );
 
+        this.identifyWheels();
+
         this.carGroup.add(this.carModel);
 
         this.startSlideSpecificAnimation(0);
@@ -115,6 +120,90 @@ export default class Slider {
         console.error('Erreur lors du chargement du modèle:', error);
       }
     );
+  }
+
+  identifyWheels() {
+    if (!this.carModel) return;
+
+    this.carModel.traverse((child) => {
+      // Nous identifions les roues par leur nom
+      if (child.name) {
+        if (child.name === 'Back_1' || child.name === 'Back_2') {
+          this.backWheels.push(child);
+          console.log('Roue arrière identifiée:', child.name);
+        } else if (child.name === 'Front_1' || child.name === 'Front_2') {
+          this.frontWheels.push(child);
+          console.log('Roue avant identifiée:', child.name);
+        }
+      }
+    });
+
+    this.startCustomWheelRotation();
+  }
+
+  startCustomWheelRotation() {
+    if (this.wheelAnimationId) {
+      cancelAnimationFrame(this.wheelAnimationId);
+      this.wheelAnimationId = null;
+    }
+
+    let driftAngle = 0;
+    const driftSpeed = 0.01;
+    const backWheelSpeed = 0.1; // Vitesse rapide pour les roues arrière
+    const frontWheelSpeed = 0.03; // Vitesse lente pour les roues avant
+
+    const animate = () => {
+      this.backWheels.forEach(wheel => {
+        if (wheel && wheel.rotation) {
+          wheel.rotation.y += backWheelSpeed;
+        }
+      });
+
+      this.frontWheels.forEach(wheel => {
+        if (wheel && wheel.rotation) {
+          // Rotation de base
+          wheel.rotation.z += frontWheelSpeed;
+
+          // Effet de dérapage (oscillation sur l'axe Z)
+          driftAngle += driftSpeed;
+          wheel.rotation.z = Math.sin(driftAngle) * 0.5;
+        }
+      });
+
+      this.wheelAnimationId = requestAnimationFrame(animate);
+    };
+
+    animate();
+  }
+
+  startCustomWheelRotationBack () {
+    if (this.wheelAnimationId) {
+      cancelAnimationFrame(this.wheelAnimationId);
+      this.wheelAnimationId = null;
+    }
+
+    let driftAngle = 0;
+    const driftSpeed = 0.01;
+    const backWheelSpeed = 0.1; // Vitesse rapide pour les roues arrière
+
+    const animate = () => {
+      this.backWheels.forEach(wheel => {
+        if (wheel && wheel.rotation) {
+          wheel.rotation.y += backWheelSpeed;
+        }
+      });
+
+      this.wheelAnimationId = requestAnimationFrame(animate);
+    };
+
+    animate();
+  }
+
+  stopCustomWheelRotationFront() {
+    if (this.wheelAnimationId) {
+      cancelAnimationFrame(this.wheelAnimationId);
+      this.wheelAnimationId = null;
+    }
   }
 
   initEvents() {
@@ -294,16 +383,20 @@ export default class Slider {
   }
 
   startSlideSpecificAnimation(slideIndex) {
-    this.wheelFrontAnimationRotation();
-    this.wheelAnimation();
+    this.startCustomWheelRotation();
+
     switch(slideIndex) {
       case 0:
         this.startDriftEffect();
         break;
       case 1:
+        this.stopCustomWheelRotationFront();
+        this.startCustomWheelRotationBack();
         this.startEngineIdleEffect();
         break;
       case 2:
+        this.stopCustomWheelRotationFront();
+        this.startCustomWheelRotationBack();
         this.startVibrationEffect();
         break;
       case 3:
@@ -421,14 +514,14 @@ export default class Slider {
 
       this.animations.vibration.to(this.carModel.position, {
         y: `+=${intensity}`,
-        x: `+=${intensity * 0.5}`,
+        x: `+=${intensity * 0.1}`,
         duration: 0.05,
         ease: 'power1.in'
       });
 
       this.animations.vibration.to(this.carModel.position, {
         y: `-=${intensity}`,
-        x: `-=${intensity * 0.5}`,
+        x: `-=${intensity * 0.15}`,
         duration: 0.05,
         ease: 'power1.out'
       });
@@ -439,14 +532,14 @@ export default class Slider {
 
       this.animations.vibration.to(this.carModel.position, {
         y: `+=${intensity}`,
-        x: `+=${intensity * 0.3}`,
+        x: `+=${intensity * 0.15}`,
         duration: 0.07,
         ease: 'sine.inOut'
       });
 
       this.animations.vibration.to(this.carModel.position, {
         y: `-=${intensity}`,
-        x: `-=${intensity * 0.3}`,
+        x: `-=${intensity * 0.5}`,
         duration: 0.07,
         ease: 'sine.inOut'
       });
@@ -457,13 +550,13 @@ export default class Slider {
 
       this.animations.vibration.to(this.carModel.position, {
         y: `+=${intensity}`,
-        duration: 0.1,
+        duration: 0.01,
         ease: 'sine.inOut'
       });
 
       this.animations.vibration.to(this.carModel.position, {
         y: `-=${intensity}`,
-        duration: 0.1,
+        duration: 0.01,
         ease: 'sine.inOut'
       });
     }
@@ -477,7 +570,7 @@ export default class Slider {
     this.animations.topView = gsap.timeline({repeat: -1});
 
     this.animations.topView.to(this.carModel.rotation, {
-      y: this.carModel.rotation.y + Math.PI * 2,
+      y: this.carModel.rotation.z + Math.PI * 2,
       duration: 15,
       ease: 'none'
     });
@@ -554,66 +647,6 @@ export default class Slider {
     });
   }
 
-  wheelAnimation() {
-    if (!this.carModel) return;
-
-    if (!this.wheels) {
-      this.wheels = [];
-      this.carModel.traverse((child) => {
-        if ((child.name === 'Back_1' || child.name === 'Back_2' || child.name === 'Front_1' || child.name === 'Front_2') &&
-          child.rotation) {
-          this.wheels.push(child);
-        }
-      });
-
-      if (!this.wheelRotation) {
-        this.wheelRotation = gsap.timeline({repeat: -1});
-        this.wheels.forEach((wheel) => {
-          this.wheelRotation.to(wheel.rotation, {
-            y: `+=${Math.PI * 2}`,
-            duration: 1,
-            ease: 'none'
-          });
-        });
-      }
-    }
-  }
-
-  wheelFrontAnimationRotation() {
-    if (!this.carModel) return;
-
-    if (!this.wheelFrontRotation) {
-      this.wheelFrontRotation = gsap.timeline({repeat: -1});
-      this.wheels.forEach((wheel) => {
-        this.wheelFrontRotation.to(wheel.rotation, {
-          z: `+=${Math.PI}`,
-          duration: 1,
-          ease: 'none'
-        });
-      });
-    }
-  }
-
-  startWheelRotation(speed, axis = 'x') {
-    this.wheels = [];
-    this.carModel.traverse((child) => {
-      if ((child.name === 'Back_1' || child.name === 'Back_2' || child.name === 'Front_1' || child.name === 'Front_2') &&
-        child.rotation) {
-        this.wheels.push(child);
-      }
-    });
-
-    const animate = () => {
-      this.wheels.forEach(wheel => {
-        if (wheel && wheel.rotation) {
-          wheel.rotation[axis] += speed;
-        }
-      });
-
-    };
-
-    animate();
-  }
   stopAllAnimations() {
     for (const key in this.animations) {
       if (this.animations[key]) {

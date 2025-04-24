@@ -5,7 +5,7 @@ import Camera from './components/Camera.js';
 import Slider from './components/Slider.js';
 import Lighting from './components/Lighting.js';
 import {initScrollBehavior} from './utils/scrollBehavior.js';
-import ModelExplorer from './components/ModelExplorer.js';
+// import ModelExplorer from './components/ModelExplorer.js';
 
 let canvas, webgl, renderer;
 
@@ -44,7 +44,7 @@ function init() {
     webgl.scrollSystem = initScrollBehavior();
 
     // Initialiser l'explorateur de modèle
-    webgl.modelExplorer = new ModelExplorer();
+    // webgl.modelExplorer = new ModelExplorer();
 
     resize();
 }

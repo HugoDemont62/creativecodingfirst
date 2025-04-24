@@ -40,8 +40,6 @@
     <div id="slide-content-1" class="slide-content">
         <h1>LE CFD, C'EST QUOI ?</h1>
         <p>Le Championnat de France de Drift (CFD) est la compétition officielle de référence en France, reconnue par la FFSA depuis 2010. C'est l'événement incontournable qui réunit l'élite des pilotes français et internationaux dans une discipline qui allie technique de pilotage extrême et spectacle grandiose.</p>
-        <p>Chaque année, plus de 60 pilotes s'affrontent lors de 4 manches réparties sur les plus beaux circuits français. Les compétitions se déroulent sous forme de qualifications individuelles puis de battles en face-à-face, jugées selon des critères stricts de vitesse, d'angle, de trajectoire et de style.</p>
-        <p>Le CFD est devenu au fil des années une véritable vitrine du sport automobile français, attirant des milliers de spectateurs et transformant le drift en un phénomène qui dépasse le cadre de la simple compétition pour devenir un véritable spectacle.</p>
 
         <div class="pillars">
             <div class="pillar">
@@ -174,10 +172,6 @@
 <!-- Barre de progression -->
 <div class="progress-bar" style="width: 0%;"></div>
 
-<!-- Indicateur d'animation de la voiture -->
-<div class="car-animation-indicator">
-    <span id="animation-name">Animation: Drift statique</span>
-</div>
 
 <!-- Script pour mettre à jour les indicateurs -->
 <script>
@@ -188,19 +182,6 @@ function updateIndicators(slideIndex) {
   const totalSlides = 6; // Nombre total de slides
   const progressWidth = ((slideIndex + 1) / totalSlides) * 100;
   progressBar.style.width = `${progressWidth}%`;
-
-  // Mettre à jour l'indicateur d'animation
-  const animationIndicator = document.getElementById('animation-name');
-  const animations = [
-    'Animation: Drift statique',
-    'Animation: Battement moteur',
-    'Animation: Vibration démarrage',
-    'Animation: Zoom subtil',
-    'Animation: Rotation drift',
-    'Animation: Pulsation'
-  ];
-
-  animationIndicator.textContent = animations[slideIndex];
 }
 
 // Observer les changements de classe active sur les boutons pour mettre à jour les indicateurs
