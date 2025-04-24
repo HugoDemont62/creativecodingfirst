@@ -1,10 +1,10 @@
-import { WebGLRenderer, Scene, Vector2, Color } from 'three';
-import { Pane } from 'tweakpane';
+import {Scene, Vector2, WebGLRenderer} from 'three';
+import {Pane} from 'tweakpane';
 import gsap from 'gsap';
 import Camera from './components/Camera.js';
 import Slider from './components/Slider.js';
 import Lighting from './components/Lighting.js';
-import { initScrollBehavior } from './utils/scrollBehavior.js';
+import {initScrollBehavior} from './utils/scrollBehavior.js';
 
 let canvas, webgl, renderer;
 
@@ -40,8 +40,7 @@ function init() {
     window.webgl = webgl;
 
     // Initialiser le comportement de scroll
-    const scrollSystem = initScrollBehavior();
-    webgl.scrollSystem = scrollSystem;
+    webgl.scrollSystem = initScrollBehavior();
 
     resize();
 }
@@ -60,7 +59,7 @@ function render() {
 }
 
 function resize() {
-    const width = window.innerWidth;
+    const width = window.innerWidth / 2;
     const height = window.innerHeight;
     webgl.viewport.set(width, height);
     webgl.viewportRatio = width / height;

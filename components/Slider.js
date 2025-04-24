@@ -1,7 +1,6 @@
-
 import { getWebgl } from '../index.js';
 import { GLTFLoader } from 'three/examples/jsm/Addons.js';
-import { Scene, Vector3, MathUtils, AmbientLight, DirectionalLight, Group } from 'three';
+import { AmbientLight, DirectionalLight, Group } from 'three';
 import gsap from 'gsap';
 
 export default class Slider {
@@ -12,31 +11,48 @@ export default class Slider {
     this.isAnimating = false;
     this.carGroup = new Group();
 
-    // Variables pour le scroll
-    this.scrollThreshold = 50;
-    this.lastScrollTime = Date.now();
-    this.scrollCooldown = 1000;
-    this.wheelDirection = 0;
-
-    // Cette référence sera mise à jour une fois le modèle chargé
     this.carModel = null;
 
-    // Configuration pour chaque slide (scale multiplié par 400 pour une taille impressionnante)
     this.slideConfigs = [
-      { rot: [0, Math.PI * 0.25, 0], scale: 7.2 },         // Slide 1: Vue 3/4 avant (0.018 * 400)
-      { rot: [0, Math.PI * 0.5, 0], scale: 6.0 },          // Slide 2: Vue de profil (0.015 * 400)
-      { rot: [0, Math.PI * 0.75, 0], scale: 6.0 },         // Slide 3: Vue 3/4 arrière (0.015 * 400)
-      { rot: [0, 0, 0], scale: 8.0 },                      // Slide 4: Vue de face (0.02 * 400)
-      { rot: [0, Math.PI * 0.8, 0], scale: 7.2 },          // Slide 5: Vue arrière dynamique (0.018 * 400)
-      { rot: [0, 0, 0], scale: 8.8 }                       // Slide 6: Vue de face imposante (0.022 * 400)
+      {
+        rot: [0, Math.PI * 0.25, 0],
+        scale: 7.2,
+        position: [0, 0, 0]
+      },
+      {
+        rot: [0, Math.PI * 0.5, 0],
+        scale: 6.0,
+        position: [0, 0, 0]
+      },
+      {
+        rot: [0, Math.PI * 0.75, 0],
+        scale: 6.0,
+        position: [0, 0, 0]
+      },
+      {
+        // Vue du dessus
+        rot: [0, Math.PI * 0.5, 0],
+        scale: 8.0,
+        position: [0, 1, 0]
+      },
+      {
+        rot: [0, Math.PI * 0.1, 0],
+        scale: 7.2,
+        position: [0, 0.5, 0]
+      },
+      {
+        rot: [0, 0, 0],
+        scale: 8.8,
+        position: [0, 0, 0]
+      }
     ];
 
-    // Animations pour chaque slide
     this.animations = {
       driftEffect: null,
       engineIdle: null,
       vibration: null,
-      zoom: null,
+      topView: null,
+      circleAround: null,
       dynamicRotation: null,
       pulse: null
     };
@@ -46,48 +62,39 @@ export default class Slider {
   }
 
   init() {
-    // Ajout du groupe de la voiture à la scène
     this.webgl.scene.add(this.carGroup);
 
-    // Positionnement du groupe à gauche
-    this.carGroup.position.set(-2, 0, 0);
-
-    // Ajout des lumières spécifiques pour la voiture
+    this.carGroup.position.set(-8, 0, 0);
     this.setupLights();
-
-    // Chargement du modèle
     this.loadModel();
-
-    // Affichage du premier slide immédiatement
     this.showSlide(0);
   }
 
   setupLights() {
-    // Lumière ambiante
-    const ambientLight = new AmbientLight(0xffffff, 0.5);
+    const ambientLight = new AmbientLight(0xffffff, 0.6);
     this.carGroup.add(ambientLight);
 
-    // Lumière principale
-    const mainLight = new DirectionalLight(0xffffff, 1);
+    const mainLight = new DirectionalLight(0xffffff, 1.2);
     mainLight.position.set(1, 3, 2);
     mainLight.castShadow = true;
     this.carGroup.add(mainLight);
 
-    // Lumière d'accentuation bleue
-    const blueLight = new DirectionalLight(0x0044ff, 0.5);
+    const blueLight = new DirectionalLight(0x0044ff, 0.7);
     blueLight.position.set(-2, 1, 1);
     this.carGroup.add(blueLight);
 
-    // Lumière d'accentuation rouge
-    const redLight = new DirectionalLight(0xff4400, 0.5);
+    const redLight = new DirectionalLight(0xff4400, 0.7);
     redLight.position.set(2, 1, -1);
     this.carGroup.add(redLight);
+
+    const topLight = new DirectionalLight(0xffffff, 0.8);
+    topLight.position.set(0, 10, 0);
+    this.carGroup.add(topLight);
   }
 
   loadModel() {
     const loader = new GLTFLoader();
 
-    // Chargement du modèle Nissan S15
     loader.load(
       'models/nissan_silvia_drift_tuned_s15.glb',
       (gltf) => {
@@ -103,12 +110,9 @@ export default class Slider {
           this.slideConfigs[0].rot[2]
         );
 
-        // Ajout du modèle au groupe
         this.carGroup.add(this.carModel);
 
-        // Démarrer l'animation du slide 1
         this.startSlideSpecificAnimation(0);
-
         console.log('Modèle S15 chargé avec succès');
       },
       (xhr) => {
@@ -121,7 +125,6 @@ export default class Slider {
   }
 
   initEvents() {
-    // Événements pour les boutons de navigation
     document.querySelectorAll('#menu button[data-slide]').forEach(button => {
       button.addEventListener('click', () => {
         const slideIndex = parseInt(button.dataset.slide, 10);
@@ -129,7 +132,6 @@ export default class Slider {
       });
     });
 
-    // Boutons précédent/suivant
     document.getElementById('prev-slide').addEventListener('click', () => {
       this.prevSlide();
     });
@@ -138,12 +140,6 @@ export default class Slider {
       this.nextSlide();
     });
 
-    // Événement de scroll
-    window.addEventListener('wheel', (e) => {
-      this.handleScroll(e);
-    });
-
-    // Événements tactiles pour mobile
     let touchStartY = 0;
     document.addEventListener('touchstart', (e) => {
       touchStartY = e.touches[0].clientY;
@@ -162,7 +158,6 @@ export default class Slider {
       }
     });
 
-    // Événements clavier (flèches)
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
         this.nextSlide();
@@ -172,51 +167,19 @@ export default class Slider {
     });
   }
 
-  handleScroll(e) {
-    // Ignorer les événements pendant les animations
-    if (this.isAnimating) return;
-
-    // Vérifier le temps écoulé depuis le dernier scroll
-    const now = Date.now();
-    if (now - this.lastScrollTime < this.scrollCooldown) return;
-
-    // Accumuler la valeur de deltaY pour détecter la direction
-    this.wheelDirection += e.deltaY;
-
-    // Si le seuil est dépassé, changer de slide
-    if (Math.abs(this.wheelDirection) > this.scrollThreshold) {
-      if (this.wheelDirection > 0) {
-        this.nextSlide();
-      } else {
-        this.prevSlide();
-      }
-
-      // Réinitialiser la direction et mettre à jour le temps
-      this.wheelDirection = 0;
-      this.lastScrollTime = now;
-    }
-  }
-
   goToSlide(index) {
     if (this.currentSlide === index || this.isAnimating || index >= this.totalSlides) return;
 
     this.isAnimating = true;
 
-    // Animation du contenu textuel
     this.animateContentOut(this.currentSlide);
-
-    // Animation du modèle 3D
     this.animateToSlide(index);
-
-    // Mise à jour des styles des boutons
     this.updateButtonStyles(index);
 
-    // Afficher le contenu après un court délai
     setTimeout(() => {
       this.animateContentIn(index);
       this.currentSlide = index;
 
-      // Réactiver les événements après la fin de l'animation
       setTimeout(() => {
         this.isAnimating = false;
       }, 500);
@@ -236,7 +199,6 @@ export default class Slider {
   }
 
   showSlide(index) {
-    // Cacher tous les slides
     for (let i = 0; i < this.totalSlides; i++) {
       const slideContent = document.getElementById(`slide-content-${i}`);
       if (slideContent) {
@@ -245,7 +207,6 @@ export default class Slider {
       }
     }
 
-    // Afficher le slide demandé
     const currentSlideContent = document.getElementById(`slide-content-${index}`);
     if (currentSlideContent) {
       currentSlideContent.style.display = 'block';
@@ -256,12 +217,12 @@ export default class Slider {
       });
     }
 
-    // Mise à jour des styles des boutons
     this.updateButtonStyles(index);
+
+    this.updateAnimationIndicator(index);
   }
 
   updateButtonStyles(activeIndex) {
-    // Mise à jour des styles des boutons
     document.querySelectorAll('#menu button[data-slide]').forEach((button, index) => {
       if (index === activeIndex) {
         button.classList.add('active');
@@ -308,15 +269,13 @@ export default class Slider {
 
     const config = this.slideConfigs[slideIndex];
 
-    // Arrêter les animations précédentes
     this.stopAllAnimations();
 
-    // Animation de la rotation
     gsap.to(this.carModel.rotation, {
       x: config.rot[0],
       y: config.rot[1],
       z: config.rot[2],
-      duration: 0.8,
+      duration: 1.2,
       ease: 'power2.inOut'
     });
 
@@ -325,10 +284,17 @@ export default class Slider {
       x: config.scale,
       y: config.scale,
       z: config.scale,
-      duration: 0.8,
+      duration: 1.2,
+      ease: 'power2.inOut'
+    });
+
+    gsap.to(this.carModel.position, {
+      x: config.position[0],
+      y: config.position[1],
+      z: config.position[2],
+      duration: 1.2,
       ease: 'power2.inOut',
       onComplete: () => {
-        // Démarrer l'animation spécifique au slide
         this.startSlideSpecificAnimation(slideIndex);
       }
     });
@@ -336,93 +302,111 @@ export default class Slider {
 
   startSlideSpecificAnimation(slideIndex) {
     switch(slideIndex) {
-      case 0:  // Slide 1: Drift statique
+      case 0:
         this.startDriftEffect();
         break;
-      case 1:  // Slide 2: Battement moteur
+      case 1:
         this.startEngineIdleEffect();
         break;
-      case 2:  // Slide 3: Vibration démarrage
+      case 2:
         this.startVibrationEffect();
         break;
-      case 3:  // Slide 4: Zoom subtil
-        this.startZoomEffect();
+      case 3:
+        this.startTopViewEffect();
         break;
-      case 4:  // Slide 5: Rotation drift
-        this.startDynamicRotationEffect();
+      case 4:
+        this.startCircleAroundEffect();
         break;
-      case 5:  // Slide 6: Pulsation
+      case 5:
         this.startPulseEffect();
         break;
     }
+
+    this.updateAnimationIndicator(slideIndex);
   }
 
-  // Animation 1: Drift statique (balancement subtil)
+  updateAnimationIndicator(slideIndex) {
+    const animationNames = [
+      'Drift statique amélioré',
+      'Battement moteur',
+      'Vibration démarrage',
+      'Vue du dessus en rotation',
+      'Mouvement circulaire',
+      'Pulsation dynamique'
+    ];
+
+    const indicator = document.getElementById('animation-name');
+    if (indicator) {
+      indicator.textContent = `Animation: ${animationNames[slideIndex]}`;
+    }
+
+    const progressBar = document.querySelector('.progress-bar');
+    if (progressBar) {
+      const progressWidth = ((slideIndex + 1) / this.totalSlides) * 100;
+      progressBar.style.width = `${progressWidth}%`;
+    }
+  }
+
   startDriftEffect() {
     if (!this.carModel) return;
 
     this.stopAllAnimations();
 
-    // Animation de balancement subtil sur l'axe Y (valeurs ajustées)
-    this.animations.driftEffect = gsap.to(this.carModel.rotation, {
-      y: `+=${Math.PI * 0.05}`,
-      duration: 2,
-      ease: 'sine.inOut',
-      yoyo: true,
-      repeat: -1
+    this.animations.driftEffect = gsap.timeline({repeat: -1, yoyo: true});
+
+    this.animations.driftEffect.to(this.carModel.rotation, {
+      y: `+=${Math.PI * 0.08}`,
+      z: `-=${Math.PI * 0.01}`,
+      duration: 1.5,
+      ease: 'sine.inOut'
     });
+
+    this.animations.driftEffect.to(this.carModel.rotation, {
+      y: `-=${Math.PI * 0.05}`,
+      z: `+=${Math.PI * 0.015}`,
+      duration: 1.2,
+      ease: 'sine.inOut'
+    });
+
+    this.animations.driftEffect.to(this.carModel.position, {
+      x: '+=0.3',
+      duration: 1.5,
+      ease: 'sine.inOut'
+    }, 0);
+
+    this.animations.driftEffect.to(this.carModel.position, {
+      x: '-=0.3',
+      duration: 1.2,
+      ease: 'sine.inOut'
+    }, 1.5);
   }
 
-  // Animation 2: Battement moteur (vibration légère)
   startEngineIdleEffect() {
     if (!this.carModel) return;
 
     this.stopAllAnimations();
 
-    // Vibration très subtile (valeurs ajustées pour grande échelle)
-    this.animations.engineIdle = gsap.to(this.carModel.position, {
-      y: '+=0.1',
-      duration: 0.1,
-      ease: 'sine.inOut',
-      yoyo: true,
-      repeat: -1
-    });
-  }
+    this.animations.engineIdle = gsap.timeline({repeat: -1});
 
-  // Animation 3: Vibration démarrage
-  startVibrationEffect() {
-    if (!this.carModel) return;
+    for (let i = 0; i < 8; i++) {
+      const intensity = 0.05 + Math.random() * 0.05;
+      const duration = 0.1 + Math.random() * 0.1;
 
-    this.stopAllAnimations();
+      this.animations.engineIdle.to(this.carModel.position, {
+        y: `+=${intensity}`,
+        duration: duration,
+        ease: 'power1.inOut'
+      });
 
-    // Vibration plus intense que l'idle (valeurs ajustées)
-    this.animations.vibration = gsap.timeline({repeat: -1});
+      this.animations.engineIdle.to(this.carModel.position, {
+        y: `-=${intensity}`,
+        duration: duration,
+        ease: 'power1.inOut'
+      });
+    }
 
-    // Séquence de vibrations
-    this.animations.vibration.to(this.carModel.position, {
-      y: '+=0.2',
-      x: '-=0.1',
-      duration: 0.05,
-      ease: 'power1.inOut'
-    });
-
-    this.animations.vibration.to(this.carModel.position, {
-      y: '-=0.2',
-      x: '+=0.1',
-      duration: 0.05,
-      ease: 'power1.inOut'
-    });
-  }
-
-  // Animation 4: Zoom subtil
-  startZoomEffect() {
-    if (!this.carModel) return;
-
-    this.stopAllAnimations();
-
-    // Animation de légère avancée/recul (valeurs ajustées)
-    this.animations.zoom = gsap.to(this.carModel.position, {
-      z: '+=1',
+    gsap.to(this.carModel.rotation, {
+      z: Math.PI * 0.005,
       duration: 2,
       ease: 'sine.inOut',
       yoyo: true,
@@ -430,58 +414,151 @@ export default class Slider {
     });
   }
 
-  // Animation 5: Rotation drift dynamique
-  startDynamicRotationEffect() {
+  startVibrationEffect() {
     if (!this.carModel) return;
 
     this.stopAllAnimations();
 
-    // Rotation oscillante plus rapide qu'en slide 1
-    this.animations.dynamicRotation = gsap.timeline({repeat: -1});
+    this.animations.vibration = gsap.timeline({repeat: -1});
 
-    // Rotation plus dynamique
-    this.animations.dynamicRotation.to(this.carModel.rotation, {
-      y: `+=${Math.PI * 0.1}`,
-      duration: 1,
-      ease: 'power2.inOut'
+    for (let i = 0; i < 5; i++) {
+      const intensity = 0.2 - (i * 0.03);
+
+      this.animations.vibration.to(this.carModel.position, {
+        y: `+=${intensity}`,
+        x: `+=${intensity * 0.5}`,
+        duration: 0.05,
+        ease: 'power1.in'
+      });
+
+      this.animations.vibration.to(this.carModel.position, {
+        y: `-=${intensity}`,
+        x: `-=${intensity * 0.5}`,
+        duration: 0.05,
+        ease: 'power1.out'
+      });
+    }
+
+    for (let i = 0; i < 10; i++) {
+      const intensity = 0.08 - (i * 0.006);
+
+      this.animations.vibration.to(this.carModel.position, {
+        y: `+=${intensity}`,
+        x: `+=${intensity * 0.3}`,
+        duration: 0.07,
+        ease: 'sine.inOut'
+      });
+
+      this.animations.vibration.to(this.carModel.position, {
+        y: `-=${intensity}`,
+        x: `-=${intensity * 0.3}`,
+        duration: 0.07,
+        ease: 'sine.inOut'
+      });
+    }
+
+    for (let i = 0; i < 15; i++) {
+      const intensity = 0.02 + (Math.random() * 0.01);
+
+      this.animations.vibration.to(this.carModel.position, {
+        y: `+=${intensity}`,
+        duration: 0.1,
+        ease: 'sine.inOut'
+      });
+
+      this.animations.vibration.to(this.carModel.position, {
+        y: `-=${intensity}`,
+        duration: 0.1,
+        ease: 'sine.inOut'
+      });
+    }
+  }
+
+  startTopViewEffect() {
+    if (!this.carModel) return;
+
+    this.stopAllAnimations();
+
+    this.animations.topView = gsap.timeline({repeat: -1});
+
+    this.animations.topView.to(this.carModel.rotation, {
+      y: this.carModel.rotation.y + Math.PI * 2,
+      duration: 15,
+      ease: 'none'
     });
 
-    this.animations.dynamicRotation.to(this.carModel.rotation, {
-      y: `-=${Math.PI * 0.1}`,
-      duration: 1,
-      ease: 'power2.inOut'
+    gsap.to(this.carModel.position, {
+      z: '+=0.5',
+      duration: 3,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1
     });
   }
 
-  // Animation 6: Pulsation (comme un battement de cœur)
+  startCircleAroundEffect() {
+    if (!this.carModel) return;
+
+    this.stopAllAnimations();
+
+    const centerX = this.carModel.position.x;
+    const centerZ = this.carModel.position.z;
+    const radius = 1.5;
+
+    this.animations.circleAround = gsap.timeline({repeat: -1});
+
+    for (let angle = 0; angle <= 360; angle += 5) {
+      const radians = angle * (Math.PI / 180);
+      const x = centerX + radius * Math.cos(radians);
+      const z = centerZ + radius * Math.sin(radians);
+
+      this.animations.circleAround.to(this.carModel.position, {
+        x: x,
+        z: z,
+        duration: 0.2,
+        ease: 'none'
+      });
+
+      this.animations.circleAround.to(this.carModel.rotation, {
+        y: radians + Math.PI/2,
+        duration: 0.2,
+        ease: 'none'
+      }, "<");
+    }
+  }
+
   startPulseEffect() {
     if (!this.carModel) return;
 
     this.stopAllAnimations();
 
-    // Effet de pulsation
     this.animations.pulse = gsap.timeline({repeat: -1});
 
-    // Légère augmentation de taille (valeurs ajustées pour la grande échelle)
     this.animations.pulse.to(this.carModel.scale, {
-      x: '+=0.8',
-      y: '+=0.8',
-      z: '+=0.8',
-      duration: 0.8,
-      ease: 'sine.inOut'
+      x: '+=1.2',
+      y: '+=1.2',
+      z: '+=1.2',
+      duration: 1,
+      ease: 'power2.out'
     });
 
-    // Retour à la taille normale
     this.animations.pulse.to(this.carModel.scale, {
-      x: '-=0.8',
-      y: '-=0.8',
-      z: '-=0.8',
-      duration: 0.8,
-      ease: 'sine.inOut'
+      x: '-=1.2',
+      y: '-=1.2',
+      z: '-=1.2',
+      duration: 1.5,
+      ease: 'elastic.out(1, 0.3)'
+    });
+
+    gsap.to(this.carModel.rotation, {
+      y: '+=0.2',
+      duration: 1,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1
     });
   }
 
-  // Arrêter toutes les animations en cours
   stopAllAnimations() {
     for (const key in this.animations) {
       if (this.animations[key]) {
@@ -490,17 +567,16 @@ export default class Slider {
       }
     }
 
-    // Réinitialiser les petits décalages de position
     if (this.carModel) {
       gsap.to(this.carModel.position, {
-        y: 0,
-        x: 0,
+        x: this.slideConfigs[this.currentSlide].position[0],
+        y: this.slideConfigs[this.currentSlide].position[1],
+        z: this.slideConfigs[this.currentSlide].position[2],
         duration: 0.2
       });
     }
   }
 
   update() {
-    // Mises à jour à chaque frame si nécessaire
   }
 }
