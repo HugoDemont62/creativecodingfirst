@@ -5,6 +5,7 @@ import Camera from './components/Camera.js';
 import Slider from './components/Slider.js';
 import Lighting from './components/Lighting.js';
 import {initScrollBehavior} from './utils/scrollBehavior.js';
+import ModelExplorer from './components/ModelExplorer.js';
 
 let canvas, webgl, renderer;
 
@@ -42,6 +43,9 @@ function init() {
     // Initialiser le comportement de scroll
     webgl.scrollSystem = initScrollBehavior();
 
+    // Initialiser l'explorateur de modèle
+    webgl.modelExplorer = new ModelExplorer();
+
     resize();
 }
 
@@ -59,7 +63,7 @@ function render() {
 }
 
 function resize() {
-    const width = window.innerWidth / 2;
+    const width = window.innerWidth;
     const height = window.innerHeight;
     webgl.viewport.set(width, height);
     webgl.viewportRatio = width / height;

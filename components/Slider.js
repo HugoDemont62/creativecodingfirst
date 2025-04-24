@@ -14,10 +14,11 @@ export default class Slider {
     this.carModel = null;
 
     this.slideConfigs = [
+      // positionné sur la gauche
       {
         rot: [0, Math.PI * 0.25, 0],
         scale: 7.2,
-        position: [0, 0, 0]
+        position: [-10, 0, 0]
       },
       {
         rot: [0, Math.PI * 0.5, 0],
@@ -79,14 +80,6 @@ export default class Slider {
     mainLight.castShadow = true;
     this.carGroup.add(mainLight);
 
-    const blueLight = new DirectionalLight(0x0044ff, 0.7);
-    blueLight.position.set(-2, 1, 1);
-    this.carGroup.add(blueLight);
-
-    const redLight = new DirectionalLight(0xff4400, 0.7);
-    redLight.position.set(2, 1, -1);
-    this.carGroup.add(redLight);
-
     const topLight = new DirectionalLight(0xffffff, 0.8);
     topLight.position.set(0, 10, 0);
     this.carGroup.add(topLight);
@@ -96,7 +89,7 @@ export default class Slider {
     const loader = new GLTFLoader();
 
     loader.load(
-      'models/nissan_silvia_drift_tuned_s15.glb',
+      'models/car.glb',
       (gltf) => {
         this.carModel = gltf.scene;
 
@@ -301,6 +294,8 @@ export default class Slider {
   }
 
   startSlideSpecificAnimation(slideIndex) {
+    this.wheelFrontAnimationRotation();
+    this.wheelAnimation();
     switch(slideIndex) {
       case 0:
         this.startDriftEffect();
@@ -559,6 +554,66 @@ export default class Slider {
     });
   }
 
+  wheelAnimation() {
+    if (!this.carModel) return;
+
+    if (!this.wheels) {
+      this.wheels = [];
+      this.carModel.traverse((child) => {
+        if ((child.name === 'Back_1' || child.name === 'Back_2' || child.name === 'Front_1' || child.name === 'Front_2') &&
+          child.rotation) {
+          this.wheels.push(child);
+        }
+      });
+
+      if (!this.wheelRotation) {
+        this.wheelRotation = gsap.timeline({repeat: -1});
+        this.wheels.forEach((wheel) => {
+          this.wheelRotation.to(wheel.rotation, {
+            y: `+=${Math.PI * 2}`,
+            duration: 1,
+            ease: 'none'
+          });
+        });
+      }
+    }
+  }
+
+  wheelFrontAnimationRotation() {
+    if (!this.carModel) return;
+
+    if (!this.wheelFrontRotation) {
+      this.wheelFrontRotation = gsap.timeline({repeat: -1});
+      this.wheels.forEach((wheel) => {
+        this.wheelFrontRotation.to(wheel.rotation, {
+          z: `+=${Math.PI}`,
+          duration: 1,
+          ease: 'none'
+        });
+      });
+    }
+  }
+
+  startWheelRotation(speed, axis = 'x') {
+    this.wheels = [];
+    this.carModel.traverse((child) => {
+      if ((child.name === 'Back_1' || child.name === 'Back_2' || child.name === 'Front_1' || child.name === 'Front_2') &&
+        child.rotation) {
+        this.wheels.push(child);
+      }
+    });
+
+    const animate = () => {
+      this.wheels.forEach(wheel => {
+        if (wheel && wheel.rotation) {
+          wheel.rotation[axis] += speed;
+        }
+      });
+
+    };
+
+    animate();
+  }
   stopAllAnimations() {
     for (const key in this.animations) {
       if (this.animations[key]) {

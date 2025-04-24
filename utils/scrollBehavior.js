@@ -105,7 +105,6 @@ export function initScrollBehavior() {
     });
   });
 
-  // Boutons précédent/suivant
   document.getElementById('prev-slide').addEventListener('click', () => {
     goToSlide(currentSlide - 1);
   });
